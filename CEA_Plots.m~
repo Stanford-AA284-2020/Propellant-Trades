@@ -37,7 +37,7 @@ for fidx = 1:length(filenames)
     
     % Find Chamber Pressure
     PCidx = strfind(str,"p,bar=")+6;
-    Pc = str2num( str(PCidx:PCidx+strfind(str(PCidx:end),"#")-2) )*1e5;% Pa
+Pc = str2num( str(PCidx:PCidx+strfind(str(PCidx:end),"#")-2) )*1e5;% Pa
 
     % Find O/F ratios used
     OFidx = strfind(str,"o/f=")+4;
@@ -95,9 +95,9 @@ for fidx = 1:length(filenames)
     hold off
     
     % Print Table
-    fprintf('\n\n<strong>%s</strong>\nChamber ID: %0.4f in\nThroat ID: %0.4f in\nAc/At: %0.1f\nChamber Pressure: %0.1f bar\n\n',titles(fidx),Dc/0.0254,Dt/0.0254,Ac/At,Pc/1e5)
+    fprintf('\n\n<strong>%s</strong>\nChamber ID: %0.4f m\nThroat ID: %0.4f m\nAc/At: %0.1f\nChamber Pressure: %0.1f bar\n\n',titles(fidx),Dc,Dt,Ac/At,Pc/1e5)
     disp(tab)
-%     FSLPM = getSLPM(tab, 2.6)
+    FSLPM = getSLPM(tab, 2.6)
 end
 
 function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
