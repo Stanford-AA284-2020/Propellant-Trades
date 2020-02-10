@@ -20,9 +20,11 @@ clear all; close all; clc;
 % filenames = ["CEA_CH4_OX_MRrange144.html"];
 % titles = ["CH4(L) & O2(L)"];
 % filenames = ["CEA_GCH4_O2_MRrange.html"];
-% titles = ["CH4 & O2(L)"];
-filenames = ["CEA_CH4_OX_14bar.html"];
-titles = ["CH4 & O2, Pc = 14 bar"];
+% titles = ["CH4 & O2(L), Pc = 24 bar"];
+% filenames = ["CEA_CH4_OX_14bar.html"];
+% titles = ["CH4 & O2, Pc = 14 bar"];
+filenames = ["CEA_CH4_OX_10bar.html"];
+titles = ["CH4 & O2, Pc = 10 bar"];
 
 % Engine Parameters
 Dc = 3.5*0.0254;% m
