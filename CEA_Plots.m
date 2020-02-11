@@ -1,37 +1,23 @@
 %% CEA Output Plotting for Mixture Ratio Selection
 clear all; close all; clc;
 
-% filenames = ["CEA_CH4_OX_MRrange144.html","CEA_LNG_OX_MRrange.html",...
-%     "CEA_LNGworst_OX_MRrange.html"];
-% filenames = ["CEA_CH4_OX_MRrange_Shifting.html","CEA_LNG_OX_MRrange_Shifting.html",...
-%     "CEA_LNGworst_OX_MRrange_Shifting.html"];
-% titles = ["CH4(L) & O2(L)",...
-%     "LNG [92% CH4(L), 7%C2H6(L), 1%C3H8(L)] & O2(L)",...
-%     "LNG [86% CH4(L), 11%C2H6(L), 3%C3H8(L)] & O2(L)"];
-% filenames = ["CEA_RP1_OX_MRrange144.html"];
-% titles = ["RP-1 & O2(L)"];
-% filenames = ["CEA_RP1_N2O_MRrange.html"];
-% titles = ["RP-1 & N2O"];
-% filenames = ["CEA_LNGworst_OX_MRrange.html","CEA_RP1_OX_MRrange144.html","CEA_C3H8_OX_MRrange.html"];
-% titles = ["LNG [86% CH4(L), 11%C2H6(L), 3%C3H8(L)] & O2(L)","RP-1 & O2(L)","C3H8(L) & O2(L)"];
-% filenames = ["CEA_C3H8_N2O_MRrange.html"];
-% titles = ["C3H8(L) & N2O"];
+% addpath("GCH4_LOX_PcSweep/")
 
-% filenames = ["CEA_CH4_OX_MRrange144.html"];
-% titles = ["CH4(L) & O2(L)"];
-% filenames = ["CEA_GCH4_O2_MRrange.html"];
-% titles = ["CH4 & O2(L), Pc = 24 bar"];
-% filenames = ["CEA_CH4_OX_14bar.html"];
-% titles = ["CH4 & O2, Pc = 14 bar"];
-filenames = ["CEA_CH4_OX_10bar.html"];
-titles = ["CH4 & O2, Pc = 10 bar"];
+names = [];
+titles = [];
+for i=1:15
+    names = [names sprintf("GCH4_LOX_PcSweep/GCH4_LOX_PC%s",num2str(i+9))];
+    titles = [titles sprintf("GCH4 & LO2, Pc = %s bar",num2str(i+9))];
+end
+filenames = strcat(names,".html");
+imgnames = strcat(names,".png");
+csvnames = strcat(names,".csv");
 
 % Engine Parameters
 Dc = 3.5*0.0254;% m
 Ac = pi*Dc^2/4;
 At = Ac/9;
 Dt = sqrt(4/pi*At);
-% Pc = 1.4e6;% Pa
 
 for fidx = 1:length(filenames)
     file = fopen(filenames(fidx));
@@ -95,11 +81,14 @@ for fidx = 1:length(filenames)
     xlabel('O/F Ratio')
     title(titles(fidx))
     hold off
+    saveas(gcf, imgnames(fidx))
+    close(gcf)
     
     % Print Table
-    fprintf('\n\n<strong>%s</strong>\nChamber ID: %0.4f in\nThroat ID: %0.4f in\nAc/At: %0.1f\nChamber Pressure: %0.1f bar\n\n',titles(fidx),Dc/0.0254,Dt/0.0254,Ac/At,Pc/1e5)
-    disp(tab)
-%     FSLPM = getSLPM(tab, 2.6)
+%     csv = fopen(csvnames(fidx),"w");
+%     fprintf('\n\n<strong>%s</strong>\nChamber ID: %0.4f in\nThroat ID: %0.4f in\nAc/At: %0.1f\nChamber Pressure: %0.1f bar\n\n',titles(fidx),Dc/0.0254,Dt/0.0254,Ac/At,Pc/1e5)
+    writetable(tab,csvnames(fidx))
+    %     disp(tab)
 end
 
 function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
@@ -109,8 +98,8 @@ function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
     mdotF = mdot - mdotO;
 end
 
-function out = getSLPM(tab,OF)
-idx = find(tab.OF == OF);
-syms x
-out = vpasolve(SLPM2Mdot(16.043,x) == tab.mdotF(idx), x);
-end
+% function out = getSLPM(tab,OF)
+% idx = find(tab.OF == OF);
+% syms x
+% out = vpasolve(SLPM2Mdot(16.043,x) == tab.mdotF(idx), x);
+% end
