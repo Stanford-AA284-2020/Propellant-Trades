@@ -91,6 +91,21 @@ for fidx = 1:length(filenames)
     %     disp(tab)
 end
 
+%% Get trends wrt chamber pressure
+storetab = readtable(csvnames(1));
+storetab = storetab(1,:);
+storetab{1,:} = NaN;
+Pc = zeros(length(names),1);
+for i=1:15
+    Pc(i) = str2double(names{i}(end-1:end));
+    tab = readtable(csvnames(i));
+    storetab = [storetab;tab(11,:)];
+end
+storetab = rmmissing(storetab);
+storetab = addvars(storetab,Pc,'Before','OF');
+writetable(storetab,'PcTrends.csv')
+% plot(storetab.Pc,storetab.Cstar)
+
 function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
     T = Cf*Pc*At;
     mdot = Pc*At/Cstar;
