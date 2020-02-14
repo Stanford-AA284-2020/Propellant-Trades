@@ -4,19 +4,22 @@ clear all; close all; clc;
 % addpath("GCH4_LOX_PcSweep/")
 
 names = [];
+names2 = [];
 titles = [];
 for i=1:15
     names = [names sprintf("GCH4_LOX_PcSweep/GCH4_LOX_PC%s",num2str(i+9))];
+    names2 = [names2 sprintf("GCH4_LOX_PcSweep1inch/GCH4_LOX_PC%s",num2str(i+9))];
     titles = [titles sprintf("GCH4 & LO2, Pc = %s bar",num2str(i+9))];
 end
 filenames = strcat(names,".html");
-imgnames = strcat(names,".png");
-csvnames = strcat(names,".csv");
+imgnames = strcat(names2,".png");
+csvnames = strcat(names2,".csv");
 
 % Engine Parameters
 Dc = 3.5*0.0254;% m
 Ac = pi*Dc^2/4;
-At = Ac/9;
+At = pi*(1*0.0254/2)^2;
+% At = Ac/9;
 Dt = sqrt(4/pi*At);
 
 for fidx = 1:length(filenames)
@@ -103,7 +106,7 @@ for i=1:15
 end
 storetab = rmmissing(storetab);
 storetab = addvars(storetab,Pc,'Before','OF');
-writetable(storetab,'PcTrends.csv')
+writetable(storetab,'GCH4_LOX_PcSweep1inch/PcTrends1inthroat.csv')
 % plot(storetab.Pc,storetab.Cstar)
 
 function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
