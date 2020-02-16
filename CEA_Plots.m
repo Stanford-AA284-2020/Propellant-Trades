@@ -8,7 +8,7 @@ names2 = [];
 titles = [];
 for i=Pcs
     names = [names sprintf("GCH4_LOX_PcSweep/GCH4_LOX_PC%s",num2str(i))];
-    names2 = [names2 sprintf("GCH4_LOX_PcSweep1inch/GCH4_LOX_PC%s",num2str(i))];
+    names2 = [names2 sprintf("GCH4_LOX_1inThroat/GCH4_LOX_PC%s",num2str(i))];
     titles = [titles sprintf("GCH4 & LO2, Pc = %s bar",num2str(i))];
 end
 filenames = strcat(names,".html");
@@ -105,7 +105,7 @@ for i=Pcs-1
 end
 storetab = rmmissing(storetab);
 storetab = addvars(storetab,Pc,'Before','OF');
-writetable(storetab,'GCH4_LOX_PcSweep1inch/PcTrends1inthroat.csv')
+writetable(storetab,'GCH4_LOX_1inThroat/PcTrends1inthroat.csv')
 
 function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
     T = Cf*Pc*At;
