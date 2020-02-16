@@ -1,15 +1,15 @@
 %% CEA Output Plotting for Mixture Ratio Selection
 clear all; close all; clc;
 
-% addpath("GCH4_LOX_PcSweep/")
+Pcs = 2:30;
 
 names = [];
 names2 = [];
 titles = [];
-for i=1:15
-    names = [names sprintf("GCH4_LOX_PcSweep/GCH4_LOX_PC%s",num2str(i+9))];
-    names2 = [names2 sprintf("GCH4_LOX_PcSweep1inch/GCH4_LOX_PC%s",num2str(i+9))];
-    titles = [titles sprintf("GCH4 & LO2, Pc = %s bar",num2str(i+9))];
+for i=Pcs
+    names = [names sprintf("GCH4_LOX_PcSweep/GCH4_LOX_PC%s",num2str(i))];
+    names2 = [names2 sprintf("GCH4_LOX_PcSweep1inch/GCH4_LOX_PC%s",num2str(i))];
+    titles = [titles sprintf("GCH4 & LO2, Pc = %s bar",num2str(i))];
 end
 filenames = strcat(names,".html");
 imgnames = strcat(names2,".png");
@@ -87,11 +87,10 @@ for fidx = 1:length(filenames)
     saveas(gcf, imgnames(fidx))
     close(gcf)
     
-    % Print Table
-%     csv = fopen(csvnames(fidx),"w");
-%     fprintf('\n\n<strong>%s</strong>\nChamber ID: %0.4f in\nThroat ID: %0.4f in\nAc/At: %0.1f\nChamber Pressure: %0.1f bar\n\n',titles(fidx),Dc/0.0254,Dt/0.0254,Ac/At,Pc/1e5)
+    % Print & Store Table
+    fprintf('\n\n<strong>%s</strong>\nChamber ID: %0.4f in\nThroat ID: %0.4f in\nAc/At: %0.1f\nChamber Pressure: %0.1f bar\n\n',titles(fidx),Dc/0.0254,Dt/0.0254,Ac/At,Pc/1e5)
+    disp(tab)
     writetable(tab,csvnames(fidx))
-    %     disp(tab)
 end
 
 %% Get trends wrt chamber pressure
@@ -99,7 +98,7 @@ storetab = readtable(csvnames(1));
 storetab = storetab(1,:);
 storetab{1,:} = NaN;
 Pc = zeros(length(names),1);
-for i=1:15
+for i=Pcs-1
     Pc(i) = str2double(names{i}(end-1:end));
     tab = readtable(csvnames(i));
     storetab = [storetab;tab(11,:)];
@@ -107,7 +106,6 @@ end
 storetab = rmmissing(storetab);
 storetab = addvars(storetab,Pc,'Before','OF');
 writetable(storetab,'GCH4_LOX_PcSweep1inch/PcTrends1inthroat.csv')
-% plot(storetab.Pc,storetab.Cstar)
 
 function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
     T = Cf*Pc*At;
@@ -115,9 +113,3 @@ function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
     mdotO = mdot/(1 + 1/OF);
     mdotF = mdot - mdotO;
 end
-
-% function out = getSLPM(tab,OF)
-% idx = find(tab.OF == OF);
-% syms x
-% out = vpasolve(SLPM2Mdot(16.043,x) == tab.mdotF(idx), x);
-% end
