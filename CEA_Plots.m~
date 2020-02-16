@@ -25,11 +25,8 @@ OF = 2.5;
 
 % Set up table for Pc storage
 col_labels = {'OF' 'EqRatio' 'Tc' 'Cstar' 'Isp' 'AeAt' 'CF' 'T' 'mdot' 'mdotO' 'mdotF'};
-storetabsz = [1,length(col_labels)+1];
-storetabtypes = repelem({'double'},storetabsz(2));
-storetab = table('Size',[length(Pcs),length(col_labels)+1],...
-    'VariableTypes',storetabtypes,...
-    'VariableNames',['Pc',col_labels]);
+
+storetab = table('Size',[1,length(col_labels)+1],'VariableNames',['Pc',col_labels])
 
 for fidx = 1:length(filenames)
     file = fopen(filenames(fidx));
@@ -102,23 +99,20 @@ for fidx = 1:length(filenames)
     writetable(tab,csvnames(fidx))
     
     % Store Pc Trends for given OF
-    storetab{fidx,1} = Pc;
-    storetab(fidx,2:end) = tab(11,:);
-    
 end
 
 %% Get trends wrt chamber pressure
-% storetab = readtable(csvnames(1));
-% storetab = storetab(1,:);
-% storetab{1,:} = NaN;
-% Pc = zeros(length(names),1);
-% for i=Pcs-1
-%     Pc(i) = str2double(names{i}(end-1:end));
-%     tab = readtable(csvnames(i));
-%     storetab = [storetab;tab(11,:)];
-% end
-% storetab = rmmissing(storetab);
-% storetab = addvars(storetab,Pc,'Before','OF');
+storetab = readtable(csvnames(1));
+storetab = storetab(1,:);
+storetab{1,:} = NaN;
+Pc = zeros(length(names),1);
+for i=Pcs-1
+    Pc(i) = str2double(names{i}(end-1:end));
+    tab = readtable(csvnames(i));
+    storetab = [storetab;tab(11,:)];
+end
+storetab = rmmissing(storetab);
+storetab = addvars(storetab,Pc,'Before','OF');
 writetable(storetab,'GCH4_LOX_1inThroat/PcTrends1inthroat.csv')
 
 function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
