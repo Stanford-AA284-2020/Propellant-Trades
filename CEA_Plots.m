@@ -1,34 +1,36 @@
 %% CEA Output Plotting for Mixture Ratio Selection
-clear all; close all; clc;
+clear all; close all;
 
 Pcs = 2:30;
 
 names = [];
-names2 = [];
+% names2 = [];
 titles = [];
 for i=Pcs
     names = [names sprintf("GCH4_LOX_PcSweep/GCH4_LOX_PC%s",num2str(i))];
-    names2 = [names2 sprintf("GCH4_LOX_1inThroat/GCH4_LOX_PC%s",num2str(i))];
+%     names2 = [names2 sprintf("GCH4_LOX_20mmThroat/GCH4_LOX_PC%s",num2str(i))];
     titles = [titles sprintf("GCH4 & LO2, Pc = %s bar",num2str(i))];
 end
 filenames = strcat(names,".html");
-imgnames = strcat(names2,".png");
-csvnames = strcat(names2,".csv");
+% imgnames = strcat(names2,".png");
+% csvnames = strcat(names2,".csv");
 
 % Engine Parameters
 Dc = 3.5*0.0254;% m
 Ac = pi*Dc^2/4;
-At = pi*(1*0.0254/2)^2;
+Dt = 22*1e-3;% m
+At = pi*(Dt/2)^2;
 % At = Ac/9;
-Dt = sqrt(4/pi*At);
-OF = 2.5;
+% Dt = sqrt(4/pi*At);
+OFdes = 2.5;
+fprintf("Throat Diameter: %0.4f mm\n",Dt*1000);
 
 % Set up table for Pc storage
 col_labels = {'OF' 'EqRatio' 'Tc' 'Cstar' 'Isp' 'AeAt' 'CF' 'T' 'mdot' 'mdotO' 'mdotF'};
-storetabsz = [1,length(col_labels)+1];
-storetabtypes = repelem({'double'},storetabsz(2));
-storetab = table('Size',[length(Pcs),length(col_labels)+1],...
-    'VariableTypes',storetabtypes,...
+Pctabsz = [1,length(col_labels)+1];
+PCtabtypes = repelem({'double'},Pctabsz(2));
+PCtab = table('Size',[length(Pcs),length(col_labels)+1],...
+    'VariableTypes',PCtabtypes,...
     'VariableNames',['Pc',col_labels]);
 
 for fidx = 1:length(filenames)
@@ -37,7 +39,7 @@ for fidx = 1:length(filenames)
     
     % Find Chamber Pressure
     PCidx = strfind(str,"p,bar=")+6;
-    Pc = str2num( str(PCidx:PCidx+strfind(str(PCidx:end),"#")-2) )*1e5;% Pa
+    Pc = str2double( str(PCidx:PCidx+strfind(str(PCidx:end),"#")-2) )*1e5;% Pa
 
     % Find O/F ratios used
     OFidx = strfind(str,"o/f=")+4;
@@ -56,20 +58,20 @@ for fidx = 1:length(filenames)
     arr = zeros(n_OF,11);
     arr(:,1) = OF;
     for i=1:n_OF
-        arr(i,2) = str2num(str(EQidx(i):EQidx(i)+7));
-        arr(i,3) = str2num(str(TCidx(i):TCidx(i)+6));
-        arr(i,4) = str2num(str(CSidx(i):CSidx(i)+5));
+        arr(i,2) = str2double(str(EQidx(i):EQidx(i)+7));
+        arr(i,3) = str2double(str(TCidx(i):TCidx(i)+6));
+        arr(i,4) = str2double(str(CSidx(i):CSidx(i)+5));
         Ispidx = strfind(str(ISidx(i):ISidx(i)+5),".")+ISidx(i)+1;
-        arr(i,5) = str2num(str(Ispidx:Ispidx+5));
-        arr(i,6) = str2num(str(ARidx(i):ARidx(i)+5));
-        arr(i,7) = str2num(str(CFidx(i):CFidx(i)+5));
+        arr(i,5) = str2double(str(Ispidx:Ispidx+5));
+        arr(i,6) = str2double(str(ARidx(i):ARidx(i)+5));
+        arr(i,7) = str2double(str(CFidx(i):CFidx(i)+5));
         [arr(i,8), arr(i,9), arr(i,10), arr(i,11)] = get_thrust_mdot(At,Pc,OF(i),arr(i,7),arr(i,4));
     end
 
     % Convert data array to table
     col_labels = {'OF' 'EqRatio' 'Tc' 'Cstar' 'Isp' 'AeAt' 'CF' 'T' 'mdot' 'mdotO' 'mdotF'};
     tab = array2table(arr,'VariableNames',col_labels);
-    tab.Properties.VariableUnits = {'' '' 'K' 'm/s' 'm/s' '' '' 'N' 'kg/s' 'kg/s' 'kg/s'};
+%     tab.Properties.VariableUnits = {'' '' 'K' 'm/s' 'm/s' '' '' 'N' 'kg/s' 'kg/s' 'kg/s'};
 
     % Find maxima of data
     [Tc_m,Tc_idx] = max(tab.Tc);
@@ -93,33 +95,24 @@ for fidx = 1:length(filenames)
     xlabel('O/F Ratio')
     title(titles(fidx))
     hold off
-    saveas(gcf, imgnames(fidx))
+%     saveas(gcf, imgnames(fidx))
     close(gcf)
     
     % Print & Store Table
-    fprintf('\n\n<strong>%s</strong>\nChamber ID: %0.4f in\nThroat ID: %0.4f in\nAc/At: %0.1f\nChamber Pressure: %0.1f bar\n\n',titles(fidx),Dc/0.0254,Dt/0.0254,Ac/At,Pc/1e5)
-    disp(tab)
-    writetable(tab,csvnames(fidx))
+%     fprintf('\n\n<strong>%s</strong>\nChamber ID: %0.4f in\nThroat ID: %0.4f in\nAc/At: %0.1f\nChamber Pressure: %0.1f bar\n\n',titles(fidx),Dc/0.0254,Dt/0.0254,Ac/At,Pc/1e5)
+%     disp(tab)
+%     writetable(tab,csvnames(fidx))
     
     % Store Pc Trends for given OF
-    storetab{fidx,1} = Pc;
-    storetab(fidx,2:end) = tab(11,:);
+    PCtab{fidx,1} = Pc;
+    [~,OFdesidx] = ismember(OFdes,tab{:,1});
+    PCtab(fidx,2:end) = tab(OFdesidx,:);
     
 end
 
 %% Get trends wrt chamber pressure
-% storetab = readtable(csvnames(1));
-% storetab = storetab(1,:);
-% storetab{1,:} = NaN;
-% Pc = zeros(length(names),1);
-% for i=Pcs-1
-%     Pc(i) = str2double(names{i}(end-1:end));
-%     tab = readtable(csvnames(i));
-%     storetab = [storetab;tab(11,:)];
-% end
-% storetab = rmmissing(storetab);
-% storetab = addvars(storetab,Pc,'Before','OF');
-writetable(storetab,'GCH4_LOX_1inThroat/PcTrends1inthroat.csv')
+% writetable(storetab,'GCH4_LOX_1inThroat/PcTrends1inthroat.csv')
+disp(PCtab)
 
 function [T, mdot, mdotO, mdotF] = get_thrust_mdot(At,Pc,OF,Cf,Cstar)
     T = Cf*Pc*At;
